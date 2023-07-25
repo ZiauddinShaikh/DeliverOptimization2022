@@ -1,0 +1,487 @@
+﻿@model DeliverOptimization2022.Models.LoggedInEmployeeRole
+
+<link href="~/css/CustomStyle.css" rel="stylesheet" />
+<link href="~/DataTables/DataTables-1.10.25/css/jquery.dataTables.css" rel="stylesheet" />
+<script src="~/DataTables/DataTables-1.10.25/js/jquery.dataTables.js"></script>
+
+
+
+<div class="text-center mt-3">
+	<h5>Set User Access</h5>
+</div>
+<hr />
+
+<div class="container mt-2">
+
+	<div class="form-group">
+		<div class="row">
+			<div class="col-md-2">
+				<label>User Name</label>
+			</div>
+			<div class="col-md-3">
+				<input name="startDate" type="text" class="form-control input-field userName" value="@Model.UserName" />
+
+			</div>
+			<div class="col-md-2">
+				<label>User Email</label>
+			</div>
+			<div class="col-md-3">
+				<input name="EndDate" type="email" class="form-control input-field userEmail" value="@Model.Email" />
+
+			</div>
+		</div>
+
+		<div class="row mt-2">
+			<div class="col-md-2">
+				<label>Role</label>
+			</div>
+			<div class="col-md-3">
+				<select class="form-control input-field role" name="role">
+					<option value="">-Select Role-</option>
+					<option value="SAdmin">Super Admin</option>
+					<option value="Admin">Admin</option>
+				</select>
+			</div>
+			<div class="col-md-2">
+				<label>Region</label>
+			</div>
+			<div class="col-md-3">
+				<select class="form-control input-field region" name="region" id="ddlRegion" multiple="multiple">
+					
+					<option value="AMS">AMS</option>
+					<option value="APAC">APAC</option>
+					<option value="EMEA">EMEA</option>
+					<option value="WW">WW</option>
+				</select>
+			</div>
+			@*<div class="col-md-2">
+					<label>Access for</label>
+				</div>
+				<div class="col-md-3">
+					<select class="form-control input-field toolDescription" id="toolDescription" name="toolDescription">
+						<option value="">-Select Tool Type-</option>
+						<option value="DOT">DOT</option>
+						<option value="EMEA">EMEA</option>
+						<option value="BOTH">BOTH</option>
+					</select>
+
+				</div>*@
+			@*<div class="col-md-2">
+					<label>Region</label>
+				</div>
+				<div class="col-md-3">
+					<select class="form-control region" name="region">
+						<option value="">-Select Region-</option>
+						<option value="AMS">AMS</option>
+						<option value="APAC">APAC</option>
+						<option value="EMEA">EMEA</option>
+					</select>
+				</div>*@
+		</div>
+        <div class="row mt-2" id="divRegionSL">
+
+            <div class="col-md-2">
+                <label>Service Line</label>
+            </div>
+            <div class="col-md-3">
+                <select id="ddlServiceLine" class="form-control input-field serviceLine" name="serviceLine" multiple="multiple" style="width:300px;">
+
+                    <option value="Analytics and Engineering">Analytics and Engineering</option>
+                    <option value="Application">Application</option>
+                    <option value="BPS">BPS</option>
+                    <option value="Insurance">Insurance</option>
+                    <option value="Insurance BPS">Insurance BPS</option>
+                    <option value="IT Outsourcing & Cloud">IT Outsourcing & Cloud</option>
+                    <option value="Modern Workplace">Modern Workplace</option>
+                    <option value="NON-SL">NON-SL</option>
+                    <option value="Security">Security</option>
+                </select>
+            </div>
+            <div class="col-md-2">
+                <label>GIDC Country</label>
+            </div>
+            @*<div class="col-md-3">
+            <select id="ddlCountry" class="form-control input-field country" name="country" multiple="multiple" style="width:300px;">
+
+                <option value="Finland">Finland</option>
+                <option value="Vietnam">Vietnam</option>
+                <option value="New Zealand">New Zealand</option>
+                <option value="Korea, Republic of">Korea, Republic of</option>
+                <option value="Egypt">Egypt</option>
+                <option value="Italy">Italy</option>
+                <option value="Brazil">Brazil</option>
+                <option value="Netherlands">Netherlands</option>
+                <option value="United States of America">United States of America</option>
+                <option value="Jordan">Jordan</option>
+                <option value="Hong Kong">Hong Kong</option>
+                <option value="Malaysia">Malaysia</option>
+                <option value="Indonesia">Indonesia</option>
+                <option value="Germany">Germany</option>
+                <option value="Philippines">Philippines</option>
+                <option value="Lithuania">Lithuania</option>
+                <option value="Hungary">Hungary</option>
+                <option value="Switzerland">Switzerland</option>
+                <option value="Saudi Arabia">Saudi Arabia</option>
+                <option value="Australia">Australia</option>
+                <option value="United Kingdom">United Kingdom</option>
+                <option value="Mexico">Mexico</option>
+                <option value="Sweden">Sweden</option>
+                <option value="Ukraine">Ukraine</option>
+                <option value="China">China</option>
+                <option value="Argentina">Argentina</option>
+                <option value="Brunei Darussalam">Brunei Darussalam</option>
+                <option value="Fiji">Fiji</option>
+                <option value="Serbia">Serbia</option>
+                <option value="Peru">Peru</option>
+                <option value="India">India</option>
+                <option value="Austria">Austria</option>
+                <option value="Greece">Greece</option>
+                <option value="United Arab Emirates">United Arab Emirates</option>
+                <option value="Israel">Israel</option>
+                <option value="Qatar">Qatar</option>
+                <option value="Poland">Poland</option>
+                <option value="Canada">Canada</option>
+                <option value="Bulgaria">Bulgaria</option>
+                <option value="Tunisia">Tunisia</option>
+                <option value="Ireland">Ireland</option>
+                <option value="Slovakia">Slovakia</option>
+                <option value="Thailand">Thailand</option>
+                <option value="Norway">Norway</option>
+                <option value="France">France</option>
+                <option value="Luxembourg">Luxembourg</option>
+                <option value="Belgium">Belgium</option>
+                <option value="Japan">Japan</option>
+                <option value="Morocco">Morocco</option>
+                <option value="Spain">Spain</option>
+                <option value="Turkey">Turkey</option>
+                <option value="Denmark">Denmark</option>
+                <option value="Romania">Romania</option>
+                <option value="Singapore">Singapore</option>
+                <option value="Colombia">Colombia</option>
+                <option value="Panama">Panama</option>
+                <option value="Chile">Chile</option>
+                <option value="South Africa">South Africa</option>
+                <option value="Czech Republic">Czech Republic</option>
+                <option value="Portugal">Portugal</option>
+                <option value="Taiwan">Taiwan</option>
+                <option value="Costa Rica">Costa Rica</option>
+            </select>
+        </div>*@
+
+
+
+            <div class="col-md-3">
+                <select id="ddlCountry" class="form-control input-field country" name="country" multiple="multiple" style="width:300px;">
+
+                    <option value="GIDC - EE">GIDC - EE</option>
+                    <option value="GIDC - India">GIDC - India</option>
+                    <option value="GIDC - Philippines">GIDC - Philippines</option>
+                    <option value="GIDC - Vietnam">GIDC - Vietnam</option>
+                    <option value="Non GIDC">Non GIDC</option>
+                </select>
+            </div>
+
+
+        </div>
+		<div class="row  offset-4 mt-4">
+			<div>
+				<input type="hidden" id="hdnId" />
+			</div>
+			<button id="btnSubmit" class="btn btn-outline-primary">
+				<i class="fas fa-save"></i> Save
+			</button>
+			<button id="btnEdit" class="btn btn-outline-secondary ml-2">
+				<i class="fas fa-edit"></i> Edit
+			</button>
+			<button id="btnDelete" class="btn btn-outline-danger ml-2">
+				<i class="fas fa-trash"></i> Delete
+			</button>
+			<button id="btnClear" class="btn btn-outline-success ml-2">
+				<i class="fas fa-redo"></i> Clear
+			</button>
+		</div>
+	</div>
+
+	<hr />
+	<table id="tblCustomized" class="class=" row-border hover" style="width:100%">
+		<thead>
+            <tr>
+                <th>Id</th>
+                <th>User Name</th>
+                <th>User Email</th>
+                <th>Role</th>
+                <th>Region</th>
+                <th>ServiceLine</th>
+                <th>Country</th>
+            </tr>
+		</thead>
+	</table>
+</div>
+<style>
+	th {
+		font-size: 12px;
+	}
+
+	td {
+		font-size: 11px;
+		min-height: 15px;
+	}
+
+	th, td {
+		white-space: nowrap;
+	}
+</style>
+
+
+
+@section scripts{
+	<script type="text/javascript">
+		$(document).ready(function () {
+
+			$('#ddlServiceLine').multiselect({
+				includeSelectAllOption: true,
+				enableCaseInsensitiveFiltering: true,
+				enableFiltering: true,
+                maxHeight: 200
+			});
+			$('#ddlRegion').multiselect({
+				includeSelectAllOption: true,
+				enableCaseInsensitiveFiltering: true,
+				enableFiltering: true,
+				maxHeight: 200
+			});
+
+            $('#ddlCountry').multiselect({
+                includeSelectAllOption: true,
+                enableCaseInsensitiveFiltering: true,
+                enableFiltering: true,
+                maxHeight: 200
+            });
+
+			var selectedRegion = "";
+			var selectedServiceLine = "";
+            var selectedCountry = "";
+			
+			
+
+			$("#btnSubmit").show();
+
+			$("#btnEdit").hide();
+
+			$("#btnDelete").hide();
+
+			$("#tblCustomized").DataTable({
+				"bStateSave": true,
+				"scrollX": true,
+				"processing": true,
+				"serverSide": true,
+				"filter": true,
+				"ajax": {
+					"url": "@Url.Action("GetEmployeeRecord", "Account")",
+					"type": "POST",
+					"datatype": "json"
+				},
+				"columnDefs": [
+					/*{ className: 'text-center', targets: [4, 5] },*/
+					/*{ className: 'text-center', targets: [5] },*/
+				],
+				"columns": [
+					{ "data": "id" },
+					{
+						"data": "userName",
+						"render": function (data, type, row, meta) {
+							return '<text style="color:blue;cursor: pointer;" class="selectrow">' + data + '</text>';
+						}
+					},
+					{
+						"data": "email",
+						"render": function (data, type, row, meta) {
+							return '<text style="color:blue;cursor: pointer;" class="selectrow">' + data + '</text>';
+						}
+					},
+					//{ "data": "userName" },
+					//{ "data": "email" },
+					{ "data": "role" },
+					{ "data": "region" },
+					{ "data": "serviceLine" },
+                    { "data": "country" }
+					/*{ "data": "toolsDescription" }*/
+				]
+			});
+
+			$('#tblCustomized').on('click', '.selectrow', function () {
+				debugger;
+				selectedRegion = "";
+				selectedServiceLine = "";
+				var currentRow = $(this).closest("tr");
+				var EId = currentRow.find("td:eq(0)").text();
+				var Ename = currentRow.find("td:eq(1)").text();
+				var Email = currentRow.find("td:eq(2)").text();
+				var Role = currentRow.find("td:eq(3)").text();
+				var Region = currentRow.find("td:eq(4)").text();
+				var ServiceLine = currentRow.find("td:eq(5)").text();
+				var toolDesc = currentRow.find("td:eq(6)").text();
+
+				$('#hdnId').val(EId);
+				$('.userName').val(Ename);
+				$('.userEmail').val(Email);
+				$('.role').val(Role);
+				$('.region').val(Region);
+				$('.serviceLine').val(ServiceLine);
+				$('.toolDescription').val(toolDesc);
+				$("#btnSubmit").hide();
+				$("#btnEdit").show();
+				$("#btnDelete").show();
+				//if (toolDesc === 'EMEA') {
+				//	$("#divRegionSL").hide();
+				//}
+				//else if (toolDesc === '' || toolDesc === null) {
+				//	$("#divRegionSL").hide();
+				//}
+				//else {
+				//	$("#divRegionSL").show();
+				//}
+			});
+
+			$("#btnClear").click(function () {
+				 $('.userName').val('');
+				$('.userEmail').val('');
+				$('.role').val('');
+				$('.region').val('');
+			});
+
+			$("#btnSubmit").click(function () {
+				$("#ddlServiceLine option:selected").each(function () {
+					selectedServiceLine += $(this).text() + ",";
+				});
+				$("#ddlRegion option:selected").each(function () {
+					selectedRegion += $(this).text() + ",";
+				});
+                $("#ddlCountry option:selected").each(function () {
+                    selectedCountry += $(this).text() + ",";
+                });
+
+			
+
+
+				var eid = $("#hdnId").val();
+				var uname = $('.userName').val();
+				var email = $('.userEmail').val();
+				var role = $('.role').val();
+				var toolDesc = $('.toolDescription').val();
+				if (uname == "") {
+					selectedRegion = "";
+					selectedServiceLine = "";
+					bootbox.alert("Please Enter the name");
+				}
+				else if (email == "") {
+					selectedRegion = "";
+					selectedServiceLine = "";
+					bootbox.alert("Please Enter the email");
+				}
+				else if (role == "") {
+					selectedRegion = "";
+					selectedServiceLine = "";
+					bootbox.alert("Please select a role");
+				}
+				else {
+					$.ajax({
+						type: "GET", url: '@Url.Action("AddEmployee", "Account")',
+						data: {
+							'uId': eid, 'uName': uname, 'email': email,
+							'role': role, 'region': selectedRegion, 'sLine': selectedServiceLine, 'toolDesc': toolDesc,'country':selectedCountry
+						},
+						contentType: "application/json; charset=utf-8",
+						dataType: "json",
+						success: function (data) {
+							bootbox.alert("Record Added Sucessfully", function () {
+								window.location.href = "@Url.Action("UserAccess", "Account")";
+							});
+
+						}
+					});
+				}
+			});
+
+			$("#btnEdit").click(function () {
+				$("#ddlServiceLine option:selected").each(function () {
+					selectedServiceLine += $(this).text() + ",";
+				});
+				$("#ddlRegion option:selected").each(function () {
+					selectedRegion += $(this).text() + ",";
+				});
+                $("#ddlCountry option:selected").each(function () {
+                    selectedCountry += $(this).text() + ",";
+                });
+				var eid = $("#hdnId").val();
+				var uname = $('.userName').val();
+				var email = $('.userEmail').val();
+				var role = $('.role').val();
+				var region = selectedRegion;
+				var serviceLine = selectedServiceLine;
+				if (uname == "") {
+					bootbox.alert("Please Enter the name");
+				}
+				else if (email == "") {
+					bootbox.alert("Please Enter the email");
+				}
+				else if (role == "") {
+					bootbox.alert("Please select a role");
+				}
+				else {
+					$.ajax({
+						type: "GET", url: '@Url.Action("UpdateEmployee", "Account")',
+						data: {
+							'uId': eid, 'uName': uname, 'email': email,
+                            'role': role, 'region': region, 'sLine': serviceLine, 'country': selectedCountry
+						},
+						contentType: "application/json; charset=utf-8",
+						dataType: "json",
+						success: function (data) {
+							bootbox.alert("Record Updated Sucessfully", function () {
+								window.location.href = "@Url.Action("UserAccess", "Account")";
+							});
+						}
+					});
+				}
+
+			});
+
+			$("#btnDelete").click(function () {
+				debugger;
+				var eid = $("#hdnId").val();
+
+				bootbox.confirm({
+					title: "Conformation !",
+					message: "Are you sure you want to remove the employee access ?",
+					buttons: {
+						cancel: {
+							label: '<i class="fa fa-times"></i> Cancel'
+						},
+						confirm: {
+							label: '<i class="fa fa-check"></i> Confirm'
+						}
+					},
+					callback: function (result) {
+						if (result) {
+							$.ajax({
+								type: "GET", url: '@Url.Action("DeleteEmployee", "Account")',
+								data: {
+									'uId': eid
+								},
+								contentType: "application/json; charset=utf-8",
+								dataType: "json",
+								success: function (data) {
+									bootbox.alert("Record Deleted Sucessfully", function () {
+										window.location.href = "@Url.Action("UserAccess", "Account")";
+									});
+
+								}
+							});
+						}
+					}
+				});
+			});
+		});
+	</script>
+}

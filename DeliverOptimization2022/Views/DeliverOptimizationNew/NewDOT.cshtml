@@ -1,0 +1,1244 @@
+﻿
+
+@using Microsoft.AspNetCore.Http;
+@model DeliverOptimization2022.Models.tbl_EmployeeOptimizationList_New
+
+
+<link href="~/css/CustomStyle.css" rel="stylesheet" />
+@*<link href="~/css/CustomStyle.css" rel="stylesheet" />
+<link href="~/DataTables/DataTables-1.10.25/css/jquery.dataTables.css" rel="stylesheet" />
+<script src="~/DataTables/DataTables-1.10.25/js/jquery.dataTables.js"></script>*@
+
+
+<div id="tabs" class="mt-3 tabs">
+	<ul >
+		<li><a href="#LowBillability"> Low Billability</a></li>
+		<li><a href="#LowBillabilityOutliers">Low Billability Outliers</a></li>
+		
+	</ul>
+	<div id="LowBillability">
+		<div class="row m-5">
+			<div class="col-12">
+				<table id="tblCustomized" class="table table-striped row-border hover" width="100%">
+					
+				</table>
+			</div>
+		</div>
+
+	</div>
+	<div id="LowBillabilityOutliers">
+		<div class="row m-5">
+			<div class="col-12">
+				<table id="tblCustomized2" class="table table-striped row-border hover" width="100%">
+					
+				</table>
+			</div>
+		</div>
+	</div>
+	
+
+</div>
+
+
+
+
+
+
+
+
+
+<style>
+	.tabs .ui-tabs-nav li {
+		margin-top: 0.6em;
+		font-size: 80%;
+	}
+
+		.tabs .ui-tabs-nav li.ui-tabs-selected,
+		.tabs .ui-tabs-nav li.ui-state-active {
+			margin-top: 0em;
+			font-size: 100%;
+		}
+	/*.dataTables_wrapper {
+		_height: 102px;
+		min-height: 102px;
+	}*/
+	th.hide_me, td.hide_me {
+		display: none;
+	}
+	th {
+		font-size: 12px;
+	}
+
+	td {
+		font-size: 11px;
+		min-height: 15px;
+	}
+
+	th, td {
+		white-space: nowrap;
+	}
+
+	.toolbar {
+		float: left;
+		margin-right: 10px;
+	}
+	.hr{
+		margin:0px;
+		padding:0px;
+	}
+	
+</style>
+
+@section scripts{
+	<script type="text/javascript">
+		$(document).ready(function () {
+			//Initialization
+			{
+				$("#divddlApprovedOverheadJustification").hide();
+				$("#divddlVolumetricJustification").hide();
+				$("#spanComment").hide();
+				$("#loading").hide();
+				$("#divAction").hide();
+				$("#divComment").hide();
+				$("#divlblLevell2DD").hide();
+				$("#divddlLevell2DD").hide();
+			}
+
+			//disable previous date
+			{
+				var dtToday = new Date();
+				var month = dtToday.getMonth() + 1;
+				var day = dtToday.getDate();
+				var year = dtToday.getFullYear();
+				if (month < 10)
+					month = '0' + month.toString();
+				if (day < 10)
+					day = '0' + day.toString();
+				var maxDate = year + '-' + month + '-' + day;
+				$('#ddlActionDueDate').attr('min', maxDate);
+			}
+
+			//Activate tab
+			//$(function () {
+			//	$("#tabs").tabs({});
+			//});
+
+
+
+
+
+			$("#tabs").tabs({
+				active: localStorage.getItem("currentIdx"),
+				activate: function (event, ui) {
+					localStorage.setItem("currentIdx", $(this).tabs('option', 'active'));
+					window.location.reload();
+				},
+			});
+
+			//tblCustomized
+			{
+				var table = $("#tblCustomized").DataTable({
+					"language": {
+						"emptyTable": "No EID/s for inputs under your hierarchy for this category"
+					},
+					"bStateSave": true,
+					"scrollX": true,
+					"sScrollXInner": "100%",
+					"processing": true,
+					"serverSide": true,
+					"filter": true,
+					"bSort": false,
+					"ajax": {
+						"url": "@Url.Action("GetEmployeeRecord", "DeliverOptimizationNew")",
+						"type": "POST",
+						"datatype": "json"
+					},
+					"columnDefs": [
+						{ className: 'text-center', targets: [4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18] },
+						/*{ "sClass": "hide_me", "aTargets": [16] }*/
+						//{
+						//	"targets": [16],
+						//	"visible": false,
+						//	"searchable": false
+						//}
+
+						/*{ className: 'text-center', targets: [5] },*/
+					],
+					"columns": [
+						{
+							"title": "Employee Id",
+							"data": "eid",
+							"render": function (data, type, row, meta) {
+								return '<text style="color:blue;cursor: pointer;" class="selectrow">' + data + '</text>';
+							}
+						},
+						{
+							"title": "Employee Name",
+							"data": "employeeName",
+							"render": function (data, type, row, meta) {
+								return '<text style="color:blue;cursor: pointer;" class="selectrow">' + data + '</text>';
+							}
+						},
+
+						{ "title": "Country", "data": "country" },
+						{ "title": "Category", "data": "category" },
+						{ "title": "TT Client ID", "data": "ttClientID" },
+						{ "title": "TT Client", "data": "ttClient" },
+						{ "title": "Billability Curr Month", "data": "billabilityCurrentMth" },
+						{ "title": "Billability Pre Month", "data": "billabilityPrvMth" },
+						{ "title": "Billability Avg Three Month", "data": "last6MonthAvgBill" },
+						{ "title": "PPMC Alloc Status", "data": "ppmcAllocStatus" },
+						{ "title": "Revenue Region", "data": "revenueRegion" },
+						{ "title": "Work Location Region", "data": "workLocationRegion" },
+						{ "title": "Service Line", "data": "serviceLine" },
+						{ "title": "Gidc Flag", "data": "gidcFlag" },
+						{ "title": "People Mgr Name", "data": "peopleMgrName" },
+						{ "title": "Level1DD", "data": "level1DD" },
+						{ "title": "Level2DD", "data": "level2DD" },
+						{ "title": "action", "data": "action", className: "hide_me" },
+						{ "title": "Action Due Date", "data": "actionDueDate" },
+						{ "title": "Action Status", "data": "actionStatus" },
+						{ "title": "Remark", "data": "comment" },
+						{ "title": "Modified By", "data": "modifiedBy" },
+						{ "title": "Modified On", "data": "modifiedOn" },
+					]
+				});
+				
+				$('#tblCustomized').on('click', '.selectrow', function () {
+					alert("Hi");
+					var currentRow = $(this).closest("tr");
+					var EId = currentRow.find("td:eq(0)").text();
+					var Ename = currentRow.find("td:eq(1)").text();
+					var Region = currentRow.find("td:eq(10)").text();
+					var GeoRegion = currentRow.find("td:eq(11)").text();
+					var ServiceLine = currentRow.find("td:eq(12)").text();
+					var Category = currentRow.find("td:eq(3)").text();
+					var level1DD = currentRow.find("td:eq(15)").text();
+					var level2DD = currentRow.find("td:eq(16)").text();
+					var Action = currentRow.find("td:eq(17)").text();
+					var ActionDueDate = currentRow.find("td:eq(18)").text();
+					var ActionStatus = currentRow.find("td:eq(19)").text();
+					var Remarks = currentRow.find("td:eq(20)").text();
+					$('.EmployeeId').text(EId);
+					$('.EmployeeName').text(Ename);
+					$('.EmployeeCategory').text(Category);
+					$('.EmployeeRegion').text(Region);
+					$('.EmployeeServiceLine').text(ServiceLine);
+					$('.EmployeeGeoRegion').text(GeoRegion);
+					$('#hdnRegion').val(Region);
+					$('#hdnServiceLine').val(ServiceLine);
+					$('#hdnNewCategory').val(Category);
+					$('#hdnGeoRegion').val(GeoRegion);
+
+					showLevel1DD(GeoRegion, ServiceLine, Category);
+					//alert($('#hdnRegion').val() + ' ' + $('#hdnServiceLine').val());
+
+					if (level1DD === '') {
+						$("#divComment").hide();
+						$("#divlblLevell2DD").hide();
+						$("#divddlLevell2DD").hide();
+						$("#divAction").hide();
+						$('#hdnEditValue').val('No');
+						/*showLevel1DD(Region, ServiceLine, Category);*/
+						$('#DescModal').modal("show");
+					}
+					else if (level1DD === 'Approved Overhead' || level1DD === 'Full month 100% HSV') {
+						$('#hdnEditValue').val('Yes');
+						$('#txtcomment').val(Remarks);
+						$("#divComment").show();
+						$("#divlblLevell2DD").show();
+						$("#divddlLevell2DD").show();
+						$("#divAction").hide();
+						showLevel1DD(GeoRegion, ServiceLine, Category);
+						showLevel2DD(GeoRegion, ServiceLine, Category, level1DD);
+						$('#ddlCategoryType').val(level1DD);
+						$('#ddlApprovedOverheadJustification').val(level2DD);
+					}
+					else if (level1DD === 'Volumetric') {
+						$('#hdnEditValue').val('Yes');
+						$('#txtcomment').val(Remarks);
+						showLevel1DD(GeoRegion, ServiceLine, Category);
+						showLevel2DD(GeoRegion, ServiceLine, Category, level1DD);
+						$('#ddlCategoryType').val(level1DD);
+						$('#ddlApprovedOverheadJustification').val(level2DD);
+						if (ServiceLine === 'IT Outsourcing & Cloud' || ServiceLine === 'Security' || ServiceLine === 'Modern Workplace' ||
+							ServiceLine === 'BPS' || ServiceLine === 'Insurance BPS') {
+							$("#divlblLevell2DD").show();
+							$("#divddlLevell2DD").show();
+							$("#divComment").show();
+						}
+						else {
+							$("#divlblLevell2DD").hide();
+							$("#divddlLevell2DD").hide();
+							$("#divComment").show();
+						}
+					}
+					else {
+
+						showLevel1DD(GeoRegion, ServiceLine, Category);
+						showLevel2DD(GeoRegion, ServiceLine, Category, level1DD);
+						$('.ActionValue').text(Action);
+						$('#ddlCategoryType').val(level1DD);
+						$('#ddlApprovedOverheadJustification').val(level2DD);
+						$('#ddlActionDueDate').val(ActionDueDate);
+						$('#ddlActionStatus').val(ActionStatus);
+						$('#txtcomment').val(Remarks);
+						$("#divComment").show();
+						$("#divlblLevell2DD").show();
+						$("#divddlLevell2DD").show();
+						$("#divAction").show();
+					}
+					$('#DescModal').modal("show");
+				});
+			}
+
+			//tblCustomized2
+			{
+				var table2 = $("#tblCustomized2").DataTable({
+					"language": {
+						"emptyTable": "No EID/s for inputs under your hierarchy for this category"
+					},
+					"bStateSave": true,
+					"scrollX": true,
+					"sScrollXInner": "100%",
+					"processing": true,
+					"serverSide": true,
+					"filter": true,
+					"bSort": false,
+					"ajax": {
+						"url": "@Url.Action("GetEmployeeRecordTab2", "DeliverOptimizationNew")",
+						"type": "POST",
+						"datatype": "json"
+					},
+					"columnDefs": [
+						{ className: 'text-center', targets: [4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18] },
+						/*{ className: 'text-center', targets: [5] },*/
+					],
+					"columns": [
+						{
+							"title": "Employee Id",
+							"data": "eid",
+							"render": function (data, type, row, meta) {
+								return '<text style="color:blue;cursor: pointer;" class="selectrow">' + data + '</text>';
+							}
+						},
+						{
+							"title": "Employee Name",
+							"data": "employeeName",
+							"render": function (data, type, row, meta) {
+								return '<text style="color:blue;cursor: pointer;" class="selectrow">' + data + '</text>';
+							}
+						},
+
+						{ "title": "Country", "data": "country" },
+						{ "title": "Category", "data": "category" },
+						{ "title": "TT Client ID", "data": "ttClientID" },
+						{ "title": "TT Client", "data": "ttClient" },
+						{ "title": "Billability Curr Month", "data": "billabilityCurrentMth" },
+						{ "title": "Billability Pre Month", "data": "billabilityPrvMth" },
+						{ "title": "Billability Avg Three Month", "data": "last6MonthAvgBill" },
+						{ "title": "PPMC Alloc Status", "data": "ppmcAllocStatus" },
+						{ "title": "Revenue Region", "data": "revenueRegion" },
+						{ "title": "Work Location Region", "data": "workLocationRegion" },
+						{ "title": "Service Line", "data": "serviceLine" },
+						{ "title": "Gidc Flag", "data": "gidcFlag" },
+						{ "title": "People Mgr Name", "data": "peopleMgrName" },
+						{ "title": "Level1DD", "data": "level1DD" },
+						{ "title": "Level2DD", "data": "level2DD" },
+						{ "title": "action", "data": "action", className: "hide_me" },
+						{ "title": "Action Due Date", "data": "actionDueDate" },
+						{ "title": "Action Status", "data": "actionStatus" },
+						{ "title": "Remark", "data": "comment" },
+						{ "title": "Modified By", "data": "modifiedBy" },
+						{ "title": "Modified On", "data": "modifiedOn" },
+					]
+				});
+
+				$('#tblCustomized2').on('click', '.selectrow', function () {
+					var currentRow = $(this).closest("tr");
+					var EId = currentRow.find("td:eq(0)").text();
+					var Ename = currentRow.find("td:eq(1)").text();
+					var Region = currentRow.find("td:eq(10)").text();
+					var GeoRegion = currentRow.find("td:eq(11)").text();
+					var ServiceLine = currentRow.find("td:eq(12)").text();
+					var Category = currentRow.find("td:eq(3)").text();
+					var level1DD = currentRow.find("td:eq(15)").text();
+					var level2DD = currentRow.find("td:eq(16)").text();
+					var Action = currentRow.find("td:eq(17)").text();
+					var ActionDueDate = currentRow.find("td:eq(18)").text();
+					var ActionStatus = currentRow.find("td:eq(19)").text();
+					var Remarks = currentRow.find("td:eq(20)").text();
+					$('.EmployeeId').text(EId);
+					$('.EmployeeName').text(Ename);
+					$('.EmployeeCategory').text(Category);
+					$('.EmployeeRegion').text(Region);
+					$('.EmployeeServiceLine').text(ServiceLine);
+					$('.EmployeeGeoRegion').text(GeoRegion);
+					$('#hdnRegion').val(Region);
+					$('#hdnServiceLine').val(ServiceLine);
+					$('#hdnNewCategory').val(Category);
+					$('#hdnGeoRegion').val(GeoRegion);
+
+
+					//alert($('#hdnRegion').val() + ' ' + $('#hdnServiceLine').val());
+
+					if (level1DD === '') {
+						$("#divComment").hide();
+						$("#divlblLevell2DD").hide();
+						$("#divddlLevell2DD").hide();
+						$("#divAction").hide();
+						$('#hdnEditValue').val('No');
+						showLevel1DD(GeoRegion, ServiceLine, Category);
+						$('#DescModal').modal("show");
+					}
+					else if (level1DD === 'Approved Overhead' || level1DD === 'Full month 100% HSV') {
+						$('#hdnEditValue').val('Yes');
+						$('#txtcomment').val(Remarks);
+						$("#divComment").show();
+						$("#divlblLevell2DD").show();
+						$("#divddlLevell2DD").show();
+						$("#divAction").hide();
+						showLevel1DD(GeoRegion, ServiceLine, Category);
+						showLevel2DD(GeoRegion, ServiceLine, Category, level1DD);
+						$('#ddlCategoryType').val(level1DD);
+						$('#ddlApprovedOverheadJustification').val(level2DD);
+					}
+					else if (level1DD === 'Volumetric') {
+						$('#hdnEditValue').val('Yes');
+						$('#txtcomment').val(Remarks);
+						showLevel1DD(GeoRegion, ServiceLine, Category);
+						showLevel2DD(GeoRegion, ServiceLine, Category, level1DD);
+						$('#ddlCategoryType').val(level1DD);
+						$('#ddlApprovedOverheadJustification').val(level2DD);
+						if (ServiceLine === 'IT Outsourcing & Cloud' || ServiceLine === 'Security' || ServiceLine === 'Modern Workplace' ||
+							ServiceLine === 'BPS' || ServiceLine === 'Insurance BPS') {
+							$("#divlblLevell2DD").show();
+							$("#divddlLevell2DD").show();
+							$("#divComment").show();
+						}
+						else {
+							$("#divlblLevell2DD").hide();
+							$("#divddlLevell2DD").hide();
+							$("#divComment").show();
+						}
+					}
+					else {
+
+						showLevel1DD(GeoRegion, ServiceLine, Category);
+						showLevel2DD(GeoRegion, ServiceLine, Category, level1DD);
+						$('.ActionValue').text(Action);
+						$('#ddlCategoryType').val(level1DD);
+						$('#ddlApprovedOverheadJustification').val(level2DD);
+						$('#ddlActionDueDate').val(ActionDueDate);
+						$('#ddlActionStatus').val(ActionStatus);
+						$('#txtcomment').val(Remarks);
+						$("#divComment").show();
+						$("#divlblLevell2DD").show();
+						$("#divddlLevell2DD").show();
+						$("#divAction").show();
+					}
+					$('#DescModal').modal("show");
+				});
+			}
+
+			
+
+			//Button change event
+			{
+				$('#ddlCategoryType').change(function () {
+
+					$("#divddlApprovedOverheadJustification").hide();
+					$("#divlblLevell2DD").hide();
+					$("#divddlLevell2DD").hide();
+					$("#divAction").hide();
+					$("#divComment").hide();
+					$("#spanComment").hide();
+
+					var Region = $('#hdnRegion').val();
+					var ServiceLine = $('#hdnServiceLine').val();
+					var Category = $('#hdnNewCategory').val();
+					var FirstDDVal = $('#ddlCategoryType option:selected').val();
+					var SecondDDVal = $('#ddlApprovedOverheadJustification option:selected').val();
+					var EditValue = $('#hdnEditValue').val();
+					var GeoRegion = $('#hdnGeoRegion').val();
+
+					$('#ddlActionDueDate').val('');
+					$('#ddlActionStatus').val('');
+					$('#txtcomment').val('');
+					$("#divddlLevell2DD").val('');
+					$('#ddlApprovedOverheadJustification').val('');
+
+					if (EditValue === "No") {
+						$("#divddlApprovedOverheadJustification").hide();
+						$("#divlblLevell2DD").hide();
+						$("#divddlLevell2DD").hide();
+						$("#divAction").hide();
+						$("#divComment").hide();
+						if (FirstDDVal === 'Approved Overhead') {
+							$("#divlblLevell2DD").show();
+							$("#divddlLevell2DD").show();
+							$("#divAction").hide();
+							$("#divComment").hide();
+							showLevel2DD(GeoRegion, ServiceLine, Category, FirstDDVal);
+						}
+						else if (FirstDDVal === 'Volumetric') {
+
+							if (ServiceLine === 'IT Outsourcing & Cloud' || ServiceLine === 'Security' || ServiceLine === 'Modern Workplace' ||
+								ServiceLine === 'BPS' || ServiceLine === 'Insurance BPS') {
+								$("#divlblLevell2DD").show();
+								$("#divddlLevell2DD").show();
+								$("#divComment").show
+								showLevel2DD(GeoRegion, ServiceLine, Category, FirstDDVal);
+							}
+							else {
+								$("#divlblLevell2DD").hide();
+								$("#divddlLevell2DD").hide();
+								$("#divComment").show();
+							}
+						}
+						else if (FirstDDVal === "Bench / Not Assigned" || FirstDDVal === "Billable with Time Tracking Issue"
+							|| FirstDDVal === "Short-term Non-Billable Assignment") {
+							$("#divlblLevell2DD").show();
+							$("#divddlLevell2DD").show();
+							$("#divComment").hide();
+							$("#divAction").hide();
+							showLevel2DD(GeoRegion, ServiceLine, Category, FirstDDVal);
+
+						}
+						else if (FirstDDVal === "Full month 100% HSV") {
+							$("#divlblLevell2DD").show();
+							$("#divddlLevell2DD").show();
+							$("#divComment").hide();
+							showLevel2DD(GeoRegion, ServiceLine, Category, FirstDDVal);
+
+						}
+						else if (FirstDDVal === "On-call Tracked as Overtime") {
+							$("#spanComment").hide();
+							$("#divlblLevell2DD").hide();
+							$("#divddlLevell2DD").hide();
+							$('.ActionValue').text('Ensure Time Tracking Compliance');
+							$("#divAction").show();
+							$("#divComment").show();
+							//$('#ddlApprovedOverheadJustification').val('');
+							//$('.ActionValue').text('');
+							//$('#ddlActionDueDate').val('');
+							//$('#ddlActionStatus').val('');
+						}
+						else if (FirstDDVal === "Other") {
+							$("#spanComment").show();
+							$("#divlblLevell2DD").hide();
+							$("#divddlLevell2DD").hide();
+							$('.ActionValue').text('Ensure Time Tracking Compliance');
+							$("#divAction").show();
+							$("#divComment").show();
+							//$('#ddlApprovedOverheadJustification').val('');
+							//$('.ActionValue').text('');
+							//$('#ddlActionDueDate').val('');
+							//$('#ddlActionStatus').val('');
+						}
+						else if (FirstDDVal === "Valid Overtime") {
+							$("#divlblLevell2DD").show();
+							$("#divddlLevell2DD").show();
+							$("#divComment").hide();
+							$("#divAction").hide();
+							showLevel2DD(GeoRegion, ServiceLine, Category, FirstDDVal);
+
+						}
+					}
+					else {
+						if (FirstDDVal === 'Approved Overhead') {
+
+							$("#divlblLevell2DD").show();
+							$("#divddlLevell2DD").show();
+							$("#divAction").hide();
+							$("#divComment").hide();
+							showLevel2DD(GeoRegion,ServiceLine,Category,FirstDDVal);
+						}
+						else if (FirstDDVal === 'Volumetric') {
+							alert(FirstDDVal);
+							if (ServiceLine === 'IT Outsourcing & Cloud' || ServiceLine === 'Security' || ServiceLine === 'Modern Workplace' ||
+								ServiceLine === 'BPS' || ServiceLine === 'Insurance BPS') {
+								$("#divlblLevell2DD").show();
+								$("#divddlLevell2DD").show();
+								$("#divComment").show
+								showLevel2DD(GeoRegion, ServiceLine, Category, FirstDDVal);
+							}
+							else {
+								$("#divlblLevell2DD").hide();
+								$("#divddlLevell2DD").hide();
+								$("#divComment").show();
+							}
+						}
+						else if (FirstDDVal === "Bench / Not Assigned" || FirstDDVal === "Billable with Time Tracking Issue"
+							|| FirstDDVal === "Short-term Non-Billable Assignment")
+						{
+							$("#divlblLevell2DD").show();
+							$("#divddlLevell2DD").show();
+							$("#divComment").hide();
+							$("#divAction").hide();
+							showLevel2DD(GeoRegion, ServiceLine, Category, FirstDDVal);
+
+						}
+						else if (FirstDDVal === "Full month 100% HSV") {
+							$("#divlblLevell2DD").show();
+							$("#divddlLevell2DD").show();
+							$("#divComment").hide();
+							showLevel2DD(GeoRegion, ServiceLine, Category, FirstDDVal);
+
+						}
+						else if (FirstDDVal === "On-call Tracked as Overtime") {
+							$("#spanComment").hide();
+							$("#divlblLevell2DD").hide();
+							$("#divddlLevell2DD").hide();
+							$('.ActionValue').text('Ensure Time Tracking Compliance');
+							$("#divAction").show();
+							$("#divComment").show();
+							//$('#ddlApprovedOverheadJustification').val('');
+							//$('.ActionValue').text('');
+							//$('#ddlActionDueDate').val('');
+							//$('#ddlActionStatus').val('');
+						}
+						else if (FirstDDVal === "Other") {
+							$("#spanComment").show();
+							$("#divlblLevell2DD").hide();
+							$("#divddlLevell2DD").hide();
+							$('.ActionValue').text('Ensure Time Tracking Compliance');
+							$("#divAction").show();
+							$("#divComment").show();
+							//$('#ddlApprovedOverheadJustification').val('');
+							//$('.ActionValue').text('');
+							//$('#ddlActionDueDate').val('');
+							//$('#ddlActionStatus').val('');
+						}
+						else if (FirstDDVal === "Valid Overtime") {
+							$("#divlblLevell2DD").show();
+							$("#divddlLevell2DD").show();
+							$("#divComment").hide();
+							$("#divAction").hide();
+							showLevel2DD(GeoRegion, ServiceLine, Category, FirstDDVal);
+
+						}
+					}
+
+
+					/*alert(FirstDDVal);*/
+				});
+				$('#ddlApprovedOverheadJustification').change(function () {
+					$('#ddlActionDueDate').val('');
+					$('#ddlActionStatus').val('');
+					$('#txtcomment').val('');
+					var EditValue = $('#hdnEditValue').val();
+					//if (EditValue === 'No') {
+					//	$('#ddlActionDueDate').val('');
+					//	$('#ddlActionStatus').val('');
+					//	$('#txtcomment').val('');
+					//}
+
+
+
+					var NewVal = $('#ddlApprovedOverheadJustification').val();
+					
+					if (NewVal === "Redeploy / Reskilling / Transfer") {
+						$('.ActionValue').text('Confirm expected redeploy date');
+						$("#divAction").show();
+						$("#divComment").show();
+					}
+					else if (NewVal === 'Resignation') {
+						$('.ActionValue').text('Confirm expected exit date');
+						$("#divAction").show();
+						$("#divComment").show();
+					}
+					else if (NewVal === 'Planned Exit') {
+						$('.ActionValue').text('Confirm expected exit date');
+						$("#divAction").show();
+						$("#divComment").show();
+					}
+					else if (NewVal === 'New assignment / waiting for WBS') {
+						$('.ActionValue').text('Obtain Correct WBS code');
+						$("#divAction").show();
+						$("#divComment").show();
+					}
+					else if (NewVal === 'New assignment / waiting for Client’s BGV clearance') {
+						
+						$('.ActionValue').text('Obtain Client BGV Clearance');
+						$("#divAction").show();
+						$("#divComment").show();
+					}
+					else if (NewVal === 'Wrong / non-billable WBS') {
+						$('.ActionValue').text('Obtain Correct WBS code');
+						$("#divAction").show();
+						$("#divComment").show();
+					}
+					else if (NewVal === 'Forgot to enter timesheet or entered incorrectly') {
+						$('.ActionValue').text('Ensure Time Tracking Compliance');
+						$("#divAction").show();
+						$("#divComment").show();
+					}
+					else if (NewVal === 'Manager did not approve timesheet on time') {
+						$('.ActionValue').text('Ensure Time Tracking Compliance');
+						$("#divAction").show();
+						$("#divComment").show();
+					}
+					else if (NewVal === 'IWO Issue') {
+						$('.ActionValue').text('Fix IWO issue');
+						$("#divAction").show();
+						$("#divComment").show();
+					}
+					else if (NewVal === 'DECP/Campus graduate') {
+						$('.ActionValue').text('Confirm expected deploy date');
+						$("#divAction").show();
+						$("#divComment").show();
+					}
+					else if (NewVal === 'Time Tracking technical/system issue') {
+						$('.ActionValue').text('Fix Time-Tracking Issue');
+						$("#divAction").show();
+						$("#divComment").show();
+					}
+					else if (NewVal === 'Training/Pre-sales/Solutioning') {
+						$('.ActionValue').text('Ensure 90% Billability in current month');
+						$("#divAction").show();
+						$("#divComment").show();
+					}
+					else if (NewVal === 'Non-Project') {
+						$('.ActionValue').text('Level out team workload by…');
+						$("#divAction").show();
+						$("#divComment").show();
+					}
+					else if (NewVal === 'Project') {
+						$('.ActionValue').text('Confirm project end date');
+						$("#divAction").show();
+						$("#divComment").show();
+					}
+					else if (NewVal === 'Increase Billability (Partial additional work)') {
+						$('.ActionValue').text('Confirm project end date');
+						$("#divAction").show();
+						$("#divComment").show();
+					}
+					else if (NewVal === 'Specific seasonal projects') {
+						$('.ActionValue').text('Confirm project end date');
+						$("#divAction").show();
+						$("#divComment").show();
+					}
+					else if (NewVal === 'Overtime required due to understaffing') {
+						$('.ActionValue').text('Level out team workload by…');
+						$("#divAction").show();
+						$("#divComment").show();
+					}
+					else if (NewVal === 'Internally Funded') {
+						$("#spanComment").show();
+						$("#divComment").show();
+					}
+					else if (NewVal === 'On-call Tracked as Overtime') {
+						$('.ActionValue').text('Ensure Time Tracking Compliance');
+						$("#divAction").show();
+						$("#spanComment").hide();
+						$("#divComment").show();
+					}
+					else if (NewVal === 'Other') {
+						$('.ActionValue').text('Ensure Time Tracking Compliance');
+						$("#divAction").show();
+						$("#spanComment").hide();
+						$("#divComment").show();
+					}
+					else {
+						$("#divAction").hide();
+						$("#divComment").show();
+						$("#spanComment").hide();
+					}
+				});
+
+
+			}
+
+			//Show Level 1 dd
+			{
+				function showLevel1DD(Region, ServiceLine, Category) {
+					$.ajax({
+						type: "GET", url: '@Url.Action("GetDropdown1Value", "DeliverOptimizationNew")',
+						async: false,
+						data: {
+							'region': Region, 'serviceLine': ServiceLine, 'category': Category,
+						},
+						contentType: "application/json; charset=utf-8",
+						dataType: "json",
+						success: function (response) {
+							var dd1 = response.data;
+							$('#ddlCategoryType').children().remove().end()
+								.append('<option selected value="">-Select One-</option>');
+							$('#ddlApprovedOverheadJustification').children().remove().end()
+								.append('<option selected value="">-Select One-</option>');
+
+							$.each(dd1, function (i, p) {
+								$('#ddlCategoryType').append($('<option></option>').val(p).html(p));
+							});
+						}
+					});
+				}
+			}
+
+			//Level 2 dd
+			{
+				function showLevel2DD(Region, ServiceLine, Category, FirstDDVal) {
+					$.ajax({
+						type: "GET", url: '@Url.Action("GetDropdown2Value", "DeliverOptimizationNew")',
+						async:false,
+						data: {
+							'region': Region, 'serviceLine': ServiceLine, 'category': Category, 'firstDropdownVal': FirstDDVal
+						},
+						contentType: "application/json; charset=utf-8",
+						dataType: "json",
+						success: function (response) {
+							$("#divddlApprovedOverheadJustification").show();
+							$('#ddlApprovedOverheadJustification').children().remove().end()
+								.append('<option selected value="">-Select One-</option>');
+							//$('#ddlApprovedOverheadJustification option:first').prop('selected', 'selected');
+							var dd1 = response.data;
+							if (dd1.length > 0) {
+								$("#divlblLevell2DD").show();
+								$("#divddlLevell2DD").show();
+
+								$.each(dd1, function (i, p) {
+									$('#ddlApprovedOverheadJustification').append($('<option></option>').val(p).html(p));
+								});
+							}
+							else {
+								$("#divComment").show();
+							}
+						}
+					});
+				}
+			}
+
+			//Button Click Event
+			{
+				$("#btnClose").click(function () {
+					$("#divddlApprovedOverheadJustification").val("");
+					$("#divddlVolumetricJustification").val("");
+					$("#divddlBillablewithTimeTrackingIssueJustification").val("");
+					$("#divddlApprovedOverheadJustification").hide();
+					$("#divddlVolumetricJustification").hide();
+					$("#divddlBillablewithTimeTrackingIssueJustification").hide();
+					$("#spanComment").hide();
+					$("#txtcomment").val("");
+				});
+
+
+				$("#btnUpdate").click(function () {
+					var EmployeeId = $(".EmployeeId").text();
+					var EmployeeName = $(".EmployeeName").text();
+					var Level1DD = $('#ddlCategoryType').val();
+					var Level2DD = $('#ddlApprovedOverheadJustification').val();
+					var Actionvalue = $(".ActionValue").text();
+					var ActionStatus = $('#ddlActionStatus').val();
+					var ActionDueDate = $("#ddlActionDueDate").val();
+					var Comments = $("#txtcomment").val();
+					var Category = $('#hdnNewCategory').val();
+					var Region = $('#hdnRegion').val();
+					var ServiceLine = $('#hdnServiceLine').val();
+
+					if (Category === 'High Billability Outliers')
+					{
+						if (Level1DD === '') {
+							bootbox.alert('Please select Level1 DD');
+							return;
+						}
+						else if (Level1DD === 'Other') {
+							$('#ddlApprovedOverheadJustification').val('');
+
+							if (ActionDueDate === '') {
+								bootbox.alert('Please select action due date.');
+								return;
+							}
+							if (ActionStatus === '') {
+								bootbox.alert('Please select action status.');
+								return;
+							}
+							if (Comments === '') {
+								bootbox.alert('Please enter remarks.');
+								return;
+							}
+						}
+						else if (Level1DD === 'On-call Tracked as Overtime') {
+							$('#ddlApprovedOverheadJustification').val('');
+							if (ActionDueDate === '') {
+								bootbox.alert('Please select action due date.');
+								return;
+							}
+							if (ActionStatus === '') {
+								bootbox.alert('Please select action status.');
+								return;
+							}
+						}
+						else {
+							if (Level2DD === '') {
+								bootbox.alert('Please select Level2 DD');
+								return;
+							}
+							else if (Level2DD !=='Change Mgmt - Out of Office Hours'){
+								if (ActionDueDate === '') {
+									bootbox.alert('Please select action due date.');
+									return;
+								}
+								if (ActionStatus === '') {
+									bootbox.alert('Please select action status.');
+									return;
+								}
+							}
+						}
+					}
+					else {
+						if (Level1DD === '') {
+							bootbox.alert('Please select Level1 DD');
+							return;
+						}
+						else if (Level1DD === 'Volumetric') {
+							if (ServiceLine === 'IT Outsourcing & Cloud' || ServiceLine === 'Security' || ServiceLine === 'Modern Workplace' ||
+								ServiceLine === 'BPS' || ServiceLine === 'Insurance BPS') {
+								if (Level2DD === '') {
+									bootbox.alert('Please select Level2 DD');
+									return;
+								}
+							}
+						}
+						else {
+							if (Level2DD === '') {
+								bootbox.alert('Please select Level2 DD');
+								return;
+							}
+							else if (Level2DD === 'Internally Funded') {
+								if (Comments === '') {
+									bootbox.alert('Please enter remarks.');
+									return;
+								}
+
+							}
+							else if (Level2DD === 'Redeploy / Reskilling / Transfer') {
+								if (ActionDueDate === '') {
+									bootbox.alert('Please select action due date.');
+									return;
+								}
+								if (ActionStatus === '') {
+									bootbox.alert('Please select action status.');
+									return;
+								}
+							}
+							else if (Level2DD === 'Resignation') {
+								if (ActionDueDate === '') {
+									bootbox.alert('Please select action due date.');
+									return;
+								}
+								if (ActionStatus === '') {
+									bootbox.alert('Please select action status.');
+									return;
+								}
+							}
+							else if (Level2DD === 'Planned Exit') {
+								if (ActionDueDate === '') {
+									bootbox.alert('Please select action due date.');
+									return;
+								}
+								if (ActionStatus === '') {
+									bootbox.alert('Please select action status.');
+									return;
+								}
+							}
+							else if (Level2DD === 'New assignment / waiting for WBS') {
+								if (ActionDueDate === '') {
+									bootbox.alert('Please select action due date.');
+									return;
+								}
+								if (ActionStatus === '') {
+									bootbox.alert('Please select action status.');
+									return;
+								}
+							}
+							else if (Level2DD === 'New assignment / waiting for Client’s BGV clearance') {
+								if (ActionDueDate === '') {
+									bootbox.alert('Please select action due date.');
+									return;
+								}
+								if (ActionStatus === '') {
+									bootbox.alert('Please select action status.');
+									return;
+								}
+							}
+							else if (Level2DD === 'Wrong / non-billable WBS') {
+								if (ActionDueDate === '') {
+									bootbox.alert('Please select action due date.');
+									return;
+								}
+								if (ActionStatus === '') {
+									bootbox.alert('Please select action status.');
+									return;
+								}
+							}
+							else if (Level2DD === 'Forgot to enter timesheet or entered incorrectly') {
+								if (ActionDueDate === '') {
+									bootbox.alert('Please select action due date.');
+									return;
+								}
+								if (ActionStatus === '') {
+									bootbox.alert('Please select action status.');
+									return;
+								}
+							}
+							else if (Level2DD === 'Manager did not approve timesheet on time') {
+								if (ActionDueDate === '') {
+									bootbox.alert('Please select action due date.');
+									return;
+								}
+								if (ActionStatus === '') {
+									bootbox.alert('Please select action status.');
+									return;
+								}
+							}
+							else if (Level2DD === 'IWO Issue') {
+								if (ActionDueDate === '') {
+									bootbox.alert('Please select action due date.');
+									return;
+								}
+								if (ActionStatus === '') {
+									bootbox.alert('Please select action status.');
+									return;
+								}
+							}
+							else if (Level2DD === 'DECP/Campus graduate') {
+								if (ActionDueDate === '') {
+									bootbox.alert('Please select action due date.');
+									return;
+								}
+								if (ActionStatus === '') {
+									bootbox.alert('Please select action status.');
+									return;
+								}
+							}
+							else if (Level2DD === 'Time Tracking technical/system issue') {
+								if (ActionDueDate === '') {
+									bootbox.alert('Please select action due date.');
+									return;
+								}
+								if (ActionStatus === '') {
+									bootbox.alert('Please select action status.');
+									return;
+								}
+							}
+							else if (Level2DD === 'Training/Pre-sales/Solutioning') {
+								if (ActionDueDate === '') {
+									bootbox.alert('Please select action due date.');
+									return;
+								}
+								if (ActionStatus === '') {
+									bootbox.alert('Please select action status.');
+									return;
+								}
+							}
+							else if (Level2DD === 'Non-Project') {
+								if (ActionDueDate === '') {
+									bootbox.alert('Please select action due date.');
+									return;
+								}
+								if (ActionStatus === '') {
+									bootbox.alert('Please select action status.');
+									return;
+								}
+							}
+							else if (Level2DD === 'Project') {
+								if (ActionDueDate === '') {
+									bootbox.alert('Please select action due date.');
+									return;
+								}
+								if (ActionStatus === '') {
+									bootbox.alert('Please select action status.');
+									return;
+								}
+							}
+							else if (Level2DD === 'Increase Billability (Partial additional work)') {
+								if (ActionDueDate === '') {
+									bootbox.alert('Please select action due date.');
+									return;
+								}
+								if (ActionStatus === '') {
+									bootbox.alert('Please select action status.');
+									return;
+								}
+							}
+							else if (Level2DD === 'Specific seasonal projects') {
+								if (ActionDueDate === '') {
+									bootbox.alert('Please select action due date.');
+									return;
+								}
+								if (ActionStatus === '') {
+									bootbox.alert('Please select action status.');
+									return;
+								}
+							}
+							else if (Level2DD === 'Overtime required due to understaffing') {
+								if (ActionDueDate === '') {
+									bootbox.alert('Please select action due date.');
+									return;
+								}
+								if (ActionStatus === '') {
+									bootbox.alert('Please select action status.');
+									return;
+								}
+							}
+						}
+					}
+					$("#loading").show();
+					$.ajax({
+						type: "GET", url: '@Url.Action("UpdateEmployeeRecordNew", "DeliverOptimizationNew")',
+						async:false,
+						data: {
+							'EmployeeId': EmployeeId, 'Level1DD': Level1DD, 'Level2DD': Level2DD, 'Actionvalue': Actionvalue,
+							'ActionStatus': ActionStatus, 'ActionDueDate': ActionDueDate, 'Comments': Comments,
+						},
+						contentType: "application/json; charset=utf-8",
+						dataType: "json",
+						success: function (data) {
+							bootbox.alert("Record Updated Successfully", function () {
+								var $tabs = $('#tabs').tabs();
+								var selected = $tabs.tabs('option', 'active');
+								$('#DescModal').modal("hide");
+								window.location.href = "@Url.Action("Index", "DeliverOptimizationNew")";
+							});
+						}
+					});
+					//alert(EmployeeName + ' ' + Level1DD + ' ' + Level2DD + ' ' + Action + ' ' + ActionStatus + ' ' + ActionDueDate);
+				});
+			}
+		});
+	</script>
+}
+
+<div class="modal fade" id="DescModal" role="dialog">
+	<div class="modal-dialog modal-lg">
+		<div class="modal-content">
+			<div class="modal-header" style="background-color:rebeccapurple">
+				<h4 class="modal-title offset-3" style="padding-left:80px; color:white">Individual Update</h4>
+			</div>
+			<div class="modal-body">
+				<div class="container">
+					<div class="row">
+						<div class=" text-left" style="font-size:13px;width:80px;"><b>Emp ID</b></div>
+						<div class=" text-left" style="font-size: 13px; width: 170px;"><b>Emp Name</b></div>
+						<div class=" text-left" style="font-size: 13px; width: 170px;"><b>Category</b></div>
+						<div class=" text-left" style="font-size: 13px; width: 90px;"><b>Rev Region</b></div>
+						<div class=" text-left" style="font-size: 13px; width: 90px;"><b>Geo Region</b></div>
+						<div class=" text-left" style="font-size: 13px; width: 150px;"><b>Service Line</b></div>
+						<input id="hdnCategory" type="hidden" />
+						<input id="hdnRegion" type="hidden" />
+						<input id="hdnGeoRegion" type="hidden" />
+						<input id="hdnServiceLine" type="hidden" />
+						<input id="hdnEditValue" type="hidden" />
+					</div>
+					<div class="row">
+						<div class=" text-left" style="font-size: 13px; width: 80px;"><p style="margin:0;padding:0" id="empId" class="EmployeeId"></p></div>
+						<div class=" text-left" style="font-size: 13px; width: 170px;"><p style="margin:0;padding:0" id="lblEmployeeName" class="EmployeeName"></p></div>
+						<div class=" text-left" style="font-size: 13px; width: 170px;"><p style="margin:0;padding:0" class="EmployeeCategory"></p></div>
+						<div class=" text-center" style="font-size: 13px; width: 90px;"><p style="margin:0;padding:0" class="EmployeeRegion"></p></div>
+						<div class=" text-center" style="font-size: 13px; width: 90px;"><p style="margin:0;padding:0" class="EmployeeGeoRegion"></p></div>
+						<div class="text-left" style="font-size: 13px; width: 150px;"><p style="margin:0;padding:0" class="EmployeeServiceLine"></p></div>
+						<input id="hdnNewCategory" type="hidden" />
+					</div>
+
+					<hr />
+					<div class="row">
+						<div class="col-md-4 text-left" style="font-size:13px;"><b><span style="color:red">*</span>Level1 DD</b></div>
+						<div id="divlblLevell2DD" class="col-md-4 text-left" style="font-size:13px;"><b><span style="color:red">*</span>Level2 DD</b></div>
+					</div>
+					<div class="row">
+						<div class="col-md-4 text-center">
+							<select required id="ddlCategoryType" style="width:200px;" class="form-control input-field">
+								<option value="">Please select</option>
+							</select>
+						</div>
+						<div class="col-md-4 text-center" id="divddlLevell2DD">
+							<select required id="ddlApprovedOverheadJustification" style="width:320px;" class="form-control input-field">
+								<option value="" selected="selected">-Select One-</option>
+							</select>
+						</div>
+					</div>
+
+					<div id="divAction">
+						<hr />
+						<div class="row">
+							<div class="col-md-1 text-left" style="font-size:15px;">
+								<b>Action-</b>
+							</div>
+							<div class="col-md-9 text-left" style="font-size: 14px; color: blueviolet">
+								<p style="margin:0;padding:0" class="ActionValue"></p>
+							</div>
+						</div>
+						<hr  />
+						<div class="row">
+							
+							<div class="col-md-4 text-left" style="font-size:13px;">
+								<b><span style="color:red">*</span>Action Due Date</b>
+							</div>
+							<div class="col-md-4 text-left" style="font-size:13px;">
+								<b><span style="color: red">*</span>Action Status</b>
+							</div>
+						</div>
+						<div class="row">
+							
+							<div class="col-md-4 text-left">
+								<input type="date" id="ddlActionDueDate" onkeydown="return false" class="form-control input-field" style="width:200px;" />
+							</div>
+							<div class="col-md-4 text-center">
+								<select required id="ddlActionStatus" class="form-control input-field" style="width:200px;">
+									<option value="">-Select One-</option>
+									<option value="Work In progress">Work In progress</option>
+									<option value="Complete">Complete</option>
+									<option value="Overdue">Overdue</option>
+								</select>
+							</div>
+						</div>
+					</div>
+					<hr />
+					<div class="row" id="divComment">
+
+						<div class="ml-2" style="font-size:13px;">
+							<b><span id="spanComment" style="color:red">*</span>Remarks</b>
+							<textarea id="txtcomment" type="text" style="width:715px; height:70px;" class="form-control input-field"></textarea>
+						</div>
+					</div>
+				</div>
+
+			</div>
+			<div class="modal-footer">
+				<img id="loading" src="~/Balls line.gif" alt="Loading" />
+				<button id="btnUpdate" type="button" class="btn btn-primary">
+					<i class="fas fa-save"></i> Submit
+				</button>
+				<button id="btnClose" type="button" class="btn btn-secondary" data-dismiss="modal">
+					<i class="fas fa-window-close"></i> Close
+				</button>
+
+			</div>
+		</div>
+		<!-- /.modal-content -->
+	</div>
+	<!-- /.modal-dialog -->
+</div>
+
+<div class="modal fade" id="NoDescModal" role="dialog">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                @*<button type="button" class="close" data-dismiss="modal" aria-hidden="true">�</button>*@
+                <h4 class="modal-title offset-2" style="padding-left:50px;">Individual Update</h4>
+
+            </div>
+            <div class="modal-body">
+                <div class="mt-3 text-center">
+                    <strong style="color:blueviolet;">Individual employee update is not permitted after the cut-off date</strong>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close!</button>
+            </div>
+        </div>
+        <!-- /.modal-content -->
+    </div>
+    <!-- /.modal-dialog -->
+</div>

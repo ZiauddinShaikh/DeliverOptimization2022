@@ -1,0 +1,135 @@
+﻿
+
+<div class="container mt-3 text-center">
+    <h3 class="mt-5 pl-20 ">Report Download</h3>
+    <hr />
+    <div class="text-black mb-1" style="font-weight:bold;font-size:18px;">Select Report Type</div>
+
+    <div class="row text-center">
+        <div class=" mt-2 col-4 text-center offset-4 ">
+            <select required id="ddlExcelDownloadValue" style="width:px;" class="form-control input-field">
+                <option value="">-Select One-</option>
+                <option value="KARAT">KARAT</option>
+                <option value="Rotate High Tenure">Rotate High Tenure</option>
+                <option value="Migration">Migration</option>
+            </select>
+        </div>
+    </div>
+    <div class="row mt-3 offset-5" style="padding-left:30px;">
+       
+        <button id="btnDownload" class="btn btn-primary">Download</button>
+    </div>
+    <div class="row mt-3 offset-5" style="padding-left:10px;">
+        <img id="loading" src="~/Balls line.gif" alt="Loading" />
+    </div>
+</div>
+
+
+@section scripts{
+<script type="text/javascript">
+    $(document).ready(function () {
+        $("#loading").hide();
+        $("#btnDownload").click(function () {
+            var ddlVal = $("#ddlExcelDownloadValue").val();
+            $("#loading").show();
+            $.ajax({
+                type: "POST",
+                url: '/Report/DonwloadExcel',
+                data: { ddlVal: ddlVal },
+                dataType: "json",
+                success: function (r) {
+                    //Convert Base64 string to Byte Array.
+                    var bytes = Base64ToBytes(r);
+
+                    //Convert Byte Array to BLOB.
+                    var blob = new Blob([bytes], { type: "application/octetstream" });
+
+                    //Check the Browser type and download the File.
+                    var isIE = false || !!document.documentMode;
+                    if (isIE) {
+                        if (ddlVal === 'KARAT') {
+                            window.navigator.msSaveBlob(blob, "KARAT.xlsx");
+                        }
+                        if (ddlVal === 'Rotate High Tenure') {
+                            window.navigator.msSaveBlob(blob, "Rotate High Tenure.xlsx");
+                        }
+                        if (ddlVal === 'Migration') {
+                            window.navigator.msSaveBlob(blob, "Migration.xlsx");
+                        }
+                        
+                    } else {
+                        var url = window.URL || window.webkitURL;
+                        link = url.createObjectURL(blob);
+                        var a = $("<a />");
+                        if (ddlVal === 'KARAT') {
+                            a.attr("download", "KARAT.xlsx");
+                        }
+                        else if (ddlVal === 'Rotate High Tenure') {
+                            a.attr("download", "Rotate High Tenure.xlsx");
+                        }
+                        else if(ddlVal === 'Migration') {
+                            a.attr("download", "Migration.xlsx");
+                        }
+                       
+                        a.attr("href", link);
+                        $("body").append(a);
+                        a[0].click();
+                        $("body").remove(a);
+                    }
+                    $("#loading").hide();
+                }
+            });
+
+
+
+
+
+            //$.ajax({
+            //    type: "POST", url: '@Url.Action("DonwloadExcel", "Report")',
+            //    async: false,
+            //    data: { 'ddlVal': ddlVal },
+            //    contentType: "application/json; charset=utf-8",
+            //    dataType: "json",
+            //    success: function (r) {
+            //        //Convert Base64 string to Byte Array.
+            //        var bytes = Base64ToBytes(r);
+
+            //        //Convert Byte Array to BLOB.
+            //        var blob = new Blob([bytes], { type: "application/octetstream" });
+
+            //        //Check the Browser type and download the File.
+            //        var isIE = false || !!document.documentMode;
+            //        if (isIE) {
+            //            window.navigator.msSaveBlob(blob, "Grid.xlsx");
+            //        } else {
+            //            var url = window.URL || window.webkitURL;
+            //            link = url.createObjectURL(blob);
+            //            var a = $("<a />");
+            //            a.attr("download", "Grid.xlsx");
+            //            a.attr("href", link);
+            //            $("body").append(a);
+            //            a[0].click();
+            //            $("body").remove(a);
+            //        }
+            //    }
+            //});
+
+
+
+
+
+        });
+
+            function Base64ToBytes(base64) {
+                var binary_string = window.atob(base64);
+                var len = binary_string.length;
+                var bytes = new Uint8Array(len);
+                for (var i = 0; i < len; i++) {
+                    bytes[i] = binary_string.charCodeAt(i);
+                }
+                return bytes.buffer;
+            }
+
+        });
+</script>
+}

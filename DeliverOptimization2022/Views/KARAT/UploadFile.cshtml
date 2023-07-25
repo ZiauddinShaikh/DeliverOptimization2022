@@ -1,0 +1,483 @@
+﻿@model DeliverOptimization2022.Models.OptimizationCloseDate
+
+<div class="container">
+    <div class="row">
+        <h4 class="offset-6 mt-3">Upload File</h4>
+    </div>
+
+    <hr />
+    @if (TempData["AlertMessage"] != null)
+    {
+        @if (TempData["AlertMessage"].ToString() == "Success")
+        {
+            <div class="alert alert-success alert-dismissible mt-2" role="alert">
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                <strong style="color:blueviolet">@TempData["Message"].ToString()</strong>!
+            </div>
+        }
+        else
+        {
+            <div class="alert alert-danger alert-dismissible mt-2" role="alert">
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                <strong style="color:blueviolet">@TempData["Message"].ToString()</strong>!
+            </div>
+        }
+
+    }
+
+    <div class="offset-3">
+        @*<form method="post" asp-controller="KARAT" asp-action="UploadFile" enctype="multipart/form-data">*@
+        <div class="row">
+            <div class="col-md-3">
+                <div style="padding-right:20px;"><label asp-for="CloseDate">Select Option</label> </div>
+            </div>
+            <div class="col-md-6">
+                <select id="ddlOption" name="workType" required class="form-control">
+                    <option value="" selected>-Select Option-</option>
+                    <option value="Date Change Only">Date Change Only</option>
+                    @*<option value="Upload File Only">Upload File Only</option>*@
+                    <option value="Upload DOT File">Upload DOT File</option>
+                    @*<option value="Upload EMEA File">Upload EMEA File</option>*@
+                </select>
+            </div>
+
+        </div>
+
+        <div class="row mt-2" id="divUploadType">
+            <div class="col-md-3">
+                <div style="padding-right:20px;"><label>Upload Type</label> </div>
+            </div>
+            <div class="col-md-6">
+                <select id="ddlUploadType" required class="form-control">
+                    <option value="" selected>-Select Upload Type-</option>
+                    <option value="Truncate and Upload">Truncate and Upload</option>
+                    <option value="Append">Append</option>
+                </select>
+            </div>
+        </div>
+
+        @*<div class="row mt-2" id="divRegion">
+            <div class="col-md-3">
+                <div style="padding-right:20px;"><label asp-for="Region">Revenue Region</label> </div>
+            </div>
+            <div class="col-md-6">
+                <select id="ddlDCRegion" name="workType" required class="form-control">
+                    <option value="" selected>-Select Region-</option>
+                    <option value="AMS">AMS</option>
+                    <option value="APAC">APAC</option>
+                    <option value="EMEA">EMEA</option>
+                    <option value="WW">WW</option>
+                </select>
+            </div>
+        </div>*@
+
+        <div id="divDate">
+            <div class="row mt-2">
+                <div class="col-md-3">
+                    <div style="padding-right:20px;"><label asp-for="CloseDate">Closing Date</label> </div>
+                </div>
+                <div class="col-md-6">
+                    <input type="date" asp-for="CloseDate" class="form-control" id="txtDate" />
+                    @*<span asp-validation-for="CloseDate" class="text-danger"></span>*@
+                </div>
+            </div>
+        </div>
+        <div class="row mt-2" id="divUpload">
+            <div class="col-md-3">
+                <div style="padding-right:28px;"><label asp-for="UploadFileName">Upload File</label></div>
+            </div>
+            <div class="col-md-6">
+                <input type="file" asp-for="UploadFileName" class="form-control" id="fileupload" />
+                @*<span asp-validation-for="UploadFileName" class="text-danger"></span>*@
+            </div>
+
+        </div>
+
+        <div class="row offset-4 mt-3">
+            <button type="submit" class="btn btn-outline-primary" value="Import" id="btnSubmit">
+                <i class="fas fa-file-import"></i> Submit
+            </button>
+            &nbsp;&nbsp;
+            <button type="submit" class="btn btn-outline-danger" value="backup" id="btnBackup">
+                <i class="fas fa-database"></i> Backup
+            </button>
+        </div>
+        @*</form>*@
+    </div>
+    <hr />
+    <div class="mt-4 offset-2" id="divUploadInformation">
+        <div class="offset-2">
+            <h5>Last Updated File Details</h5>
+        </div>
+        <hr />
+
+        <div class="row mt-3">
+            <div class="col-md-2"><strong>Close Date</strong></div>
+            @*<div class="col-md-3">@ViewBag.CloseDate</div>*@
+            <div class="col-md-3"><label id="lblCloseDate"></label> </div>
+            @*<div class="col-md-2"><strong>Region</strong></div>
+            <div class="col-md-3"><label id="lblRegion"></label></div>*@
+
+        </div>
+        <hr />
+        <div class="row mt-3">
+            <div class="col-md-2"><strong>Modified Date</strong></div>
+            <div class="col-md-3"><label id="lblCreatedDate"></label></div>
+            @*<div class="col-md-2"><strong>File Name</strong></div>
+            <div class="col-md-4"><label id="lblFileName"></label></div>*@
+        </div>
+    </div>
+</div>
+
+
+@section Scripts{
+    <script type="text/javascript">
+			$(document).ready(function () {
+				$('.dis-form-button').prop('disabled', false);
+				$("#divDate").hide();
+                $("#divRegion").hide();
+				$("#divUpload").hide();
+				$("#divUploadInformation").hide();
+				$("#divUploadType").hide();
+                $("#ddlUploadType").change(function () {
+                    $("#fileupload").val('');
+				});
+				$("#ddlOption").change(function () {
+					var ddltempid = $("#ddlOption").val();
+					if (ddltempid === "Date Change Only") {
+						$("#divDate").show();
+						$("#divUpload").hide();
+                        $("#divUploadInformation").show();
+						$("#ddlDCRegion").val('');
+						$("#fileupload").val('');
+						$("#divUploadType").hide();
+
+                        $.ajax({
+                            type: "POST",
+                            url: "/KARAT/GetChangeDate",
+                            beforeSend: function (xhr) {
+                                xhr.setRequestHeader("XSRF-TOKEN",
+                                    $('input:hidden[name="__RequestVerificationToken"]').val());
+                            },
+                            
+                            contentType: false,
+                            processData: false,
+                            success: function (response) {
+                                if (response.length == 0) {
+                                    bootbox.alert('Some error occured while uploading');
+                                }
+                                else {
+                                    $("#lblCloseDate").text(response.closeDate);
+                                    $("#lblRegion").text(response.region);
+                                    $("#lblCreatedDate").text(response.createdDate);
+                                    $("#divUploadInformation").show();
+                                    
+                                }
+                            },
+                            error: function (e) {
+                                $('#divPrint').html(e.responseText);
+                                dialog.modal('hide');
+                            }
+
+                        });
+
+
+
+					}
+					else if (ddltempid === "Upload DOT File") {
+						bootbox.alert("Please make sure excel structure are same and excel AL column contain date in string format.<br/> Make sure the data is backedup, if not then please click the Backup button to backup the data before uploading a file.", function () {
+							$("#divUploadInformation").hide();
+							$("#divDate").hide();
+							$("#divRegion").hide();
+							$("#divUpload").show();
+							$("#divUploadType").show();
+						});
+					}
+					else if (ddltempid === "Upload EMEA File") {
+						bootbox.alert("Please make sure excel structure are same and excel AL column contain date in string format.<br/> Make sure the data is backedup, if not then please click the Backup button to backup the data before uploading a file.", function () {
+							$("#divUploadInformation").hide();
+							$("#divDate").hide();
+							$("#divRegion").hide();
+							$("#divUpload").show();
+							$("#divUploadType").show();
+						});
+					}
+					else {
+						$("#divDate").hide();
+						$("#divUpload").hide();
+						$("#divDCRegion").hide
+						$("#divUploadType").hide();
+						$("#divRegion").hide();
+						$("#divUploadInformation").hide();
+					}
+				});
+
+             $("#ddlDCRegion").change(function () {
+				 $("#divDate").show();
+				 $("#fileupload").val('');
+                 $("#txtDate").val('');
+                 $("#divUpload").hide();
+				 $("#divRegion").show();
+				 var regionVal = $("#ddlDCRegion").val();
+				 $.ajax({
+					 type: "GET", url: '@Url.Action("GetRegionData", "KARAT")',
+					 data: {
+                         'para1': regionVal,
+					 },
+					 contentType: "application/json; charset=utf-8",
+					 dataType: "json",
+					 success: function (response) {
+						 $("#lblCloseDate").text(response.closeDate);
+                         $("#lblFileName").text(response.fileName);
+                         $("#lblRegion").text(response.region);
+                         $("#lblCreatedDate").text(response.createdDate);
+						 $("#divUploadInformation").show();
+					 }
+				 });
+			});
+
+				$("#btnSubmit").click(function () {
+					var dialog = bootbox.dialog({
+						message: '<p class="text-center mb-0"><i class="fa fa-spin fa-cog"></i> Please wait while we do Updating the data...</p>',
+						closeButton: false,
+						centerVertical: true
+					});
+
+					var ddltempid = $("#ddlOption").val();
+					
+					var txtDate = $("#txtDate").val();
+					$('.dis-form-button').prop('disabled', false);
+					if (ddltempid === "Date Change Only") {
+						debugger;
+						var txtDate = $("#txtDate").val();
+						var ddlRegion = $("#ddlDCRegion").val();
+						if (txtDate == "") {
+							bootbox.alert("Please select date");
+							dialog.modal('hide');
+							return false;
+						}
+						if (ddlRegion === "") {
+							bootbox.alert("Please select Region");
+							dialog.modal('hide');
+							return false;
+						}
+						var fdata = new FormData();
+						fdata.append('date', txtDate);
+						fdata.append('region', ddlRegion);
+						$.ajax({
+							type: "POST",
+							url: "/KARAT/ChangeDate",
+							beforeSend: function (xhr) {
+								xhr.setRequestHeader("XSRF-TOKEN",
+									$('input:hidden[name="__RequestVerificationToken"]').val());
+							},
+							data: fdata,
+							contentType: false,
+							processData: false,
+							success: function (response) {
+								if (response.length == 0) {
+                                    bootbox.alert('Some error occured while uploading');
+                                }
+								else {
+									$("#lblCloseDate").text(response.closeDate);
+									$("#lblRegion").text(response.region);
+									$("#lblCreatedDate").text(response.createdDate);
+									$("#divUploadInformation").show();
+									dialog.modal('hide');
+								}
+							},
+							error: function (e) {
+								$('#divPrint').html(e.responseText);
+								dialog.modal('hide');
+							}
+
+						});
+					}
+					else if(ddltempid === "Upload EMEA File") {
+						debugger;
+
+						var fileExtension = ['xls', 'xlsx'];
+						var filename = $('#fileupload').val();
+                        var UploadType = $('#ddlUploadType').val();
+
+						var txtDate = $("#txtDate").val();
+
+						if (UploadType === '') {
+                            bootbox.alert("Please select upload type");
+                            dialog.modal('hide');
+                            return false;
+                        }
+
+						if (filename.length == 0) {
+							bootbox.alert("Please select a file.");
+                            dialog.modal('hide');
+							return false;
+						}
+						else {
+							var extension = filename.replace(/^.*\./, '');
+							if ($.inArray(extension, fileExtension) == -1) {
+								bootbox.alert("Please select only excel files.");
+								return false;
+							}
+						}
+
+						var fdata = new FormData();
+						var fileUpload = $("#fileupload").get(0);
+						var files = fileUpload.files;
+						fdata.append(files[0].name, files[0]);
+						fdata.append('date', txtDate);
+                        fdata.append('uploadType', UploadType);
+						$.ajax({
+							type: "POST",
+							url: "/KARAT/UploadEMEAFiles",
+							beforeSend: function (xhr) {
+								xhr.setRequestHeader("XSRF-TOKEN",
+									$('input:hidden[name="__RequestVerificationToken"]').val());
+							},
+							data: fdata,
+							contentType: false,
+							processData: false,
+							success: function (response) {
+								if (response.length == 0)
+									bootbox.alert('Some error occured while uploading');
+								else {
+									bootbox.alert("File Uploaded and Date Changed Successfully", function () {
+										dialog.modal('hide');
+										window.location.href = "@Url.Action("UploadFile", "KARAT")";
+									});
+								}
+							},
+							error: function (e) {
+								$('#divPrint').html(e.responseText);
+							}
+						});
+					}
+					else if(ddltempid === "Upload DOT File") {
+
+						var fileExtension = ['xls', 'xlsx'];
+						var filename = $('#fileupload').val();
+                        var UploadType = $('#ddlUploadType').val();
+
+						var txtDate = $("#txtDate").val();
+
+						if (UploadType === '') {
+                            bootbox.alert("Please select upload type");
+                            dialog.modal('hide');
+                            return false;
+                        }
+
+						if (filename.length == 0) {
+							bootbox.alert("Please select a file.");
+                            dialog.modal('hide');
+							return false;
+						}
+						else {
+							var extension = filename.replace(/^.*\./, '');
+							if ($.inArray(extension, fileExtension) == -1) {
+								bootbox.alert("Please select only excel files.");
+								return false;
+							}
+						}
+						var fdata = new FormData();
+						var fileUpload = $("#fileupload").get(0);
+						var files = fileUpload.files;
+						fdata.append(files[0].name, files[0]);
+						fdata.append('date', txtDate);
+                        fdata.append('uploadType', UploadType);
+						$.ajax({
+							type: "POST",
+							url: "/KARAT/UploadFiles",
+							beforeSend: function (xhr) {
+								xhr.setRequestHeader("XSRF-TOKEN",
+									$('input:hidden[name="__RequestVerificationToken"]').val());
+							},
+							data: fdata,
+							contentType: false,
+							processData: false,
+							success: function (response) {
+								if (response.length == 0)
+									bootbox.alert('Some error occured while uploading');
+								else {
+									bootbox.alert("File Uploaded and Date Changed Successfully", function () {
+										dialog.modal('hide');
+										window.location.href = "@Url.Action("UploadFile", "KARAT")";
+									});
+								}
+							},
+							error: function (e) {
+								$('#divPrint').html(e.responseText);
+							}
+						});
+					}
+					else {
+						dialog.modal('hide');
+						alert("No Selection");
+					}
+				});
+
+			$("#btnBackup").click(function () {
+				bootbox.confirm({
+					title: "Conformation!",
+					message: "Are you sure you want to backup the data.",
+					buttons: {
+						cancel: {
+							label: '<i class="fa fa-times"></i> Cancel'
+						},
+						confirm: {
+							label: '<i class="fa fa-check"></i> Confirm'
+						}
+					},
+					callback: function (result) {
+						if (result) {
+							var dialog = bootbox.dialog({
+								message: '<p class="text-center mb-0"><i class="fa fa-spin fa-cog"></i> Please wait while we do Updating the data...</p>',
+								closeButton: false,
+								centerVertical: true
+							});
+							$.ajax({
+								url: "/Account/Backup",
+								type: "get",
+								//data: { Project: JSON.stringify(HCW_DataEntry) },
+								//dataType: "json",
+								//contentType: "application/json; charset=utf-8",
+								success: function (d) {
+									bootbox.alert("Backup taken Sucessfully", function () {
+										dialog.modal('hide');
+										window.location.reload();
+									});
+								}
+							});
+						}
+
+					}
+				});
+			});
+		});
+    </script>
+}
+<style>
+    .dis-form-button .spinner {
+        display: none;
+    }
+
+    .dis-form-button:disabled .spinner {
+        display: inline-block;
+    }
+
+    .dis-form-button1 .spinner {
+        display: none;
+    }
+
+    .dis-form-button1:disabled .spinner {
+        display: inline-block;
+    }
+
+    #eventForm .dateContainer .form-control-feedback {
+        top: 0;
+        right: -15px;
+    }
+</style>
